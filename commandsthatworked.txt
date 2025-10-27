@@ -1,0 +1,19 @@
+ffmpeg -hide_banner -loglevel info -hwaccel none -flags2 +export_mvs -i "input.mp4" -vf codecview=mv=pf+bf+bb -f null -
+
+
+ffprobe -hide_banner -v error -export_side_data +mvs -select_streams v:0 -show_frames -show_entries frame=pkt_pts_time,pict_type,side_data_list -print_format json "input.mp4" > mv_dump.json
+
+
+ffprobe -hide_banner -v error -export_side_data +mvs -select_streams v:0 -show_frames -read_intervals 5%+0.2 -of json "input.mp4" > mv_snip.json
+
+
+ffmpeg -hide_banner -loglevel info -flags2 +export_mvs -i "input.mp4" -vf "codecview=mv=pf+bf+bb" -f null -
+
+ffprobe -hide_banner -v error -export_side_data +mvs -select_streams v:0 -show_frames -print_format json "input.mp4" > frames.json
+
+ffprobe -hide_banner -v error -export_side_data +mvs -select_streams v:0 -show_frames -of flat "input.mp4"
+
+nmake /A clean
+nmake mpegflow.exe FFMPEG_DIR=C:\vcpkg\installed\x64-windows
+
+.\mpegflow.exe --raw "examples\mpi_sintel_final_alley_1.avi" 1>out.txt 2>err.txt
