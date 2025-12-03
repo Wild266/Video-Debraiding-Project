@@ -1,0 +1,125 @@
+import sys
+import os
+import time
+from datetime import datetime
+import argparse
+
+import numpy as np
+import cv2
+
+from mvextractor.videocap import VideoCap
+
+
+def draw_motion_vectors(frame, motion_vectors):
+    if len(motion_vectors) > 0:
+        num_mvs = np.shape(motion_vectors)[0]
+        shift = 2
+        factor = (1 << shift)
+        for mv in np.split(motion_vectors, num_mvs):
+            start_pt = (int((mv[0, 5] + mv[0, 7] / mv[0, 9]) * factor + 0.5), int((mv[0, 6] + mv[0, 8] / mv[0, 9]) * factor + 0.5))
+            end_pt = (mv[0, 5] * factor, mv[0, 6] * factor)
+            cv2.arrowedLine(frame, start_pt, end_pt, (0, 0, 255), 1, cv2.LINE_AA, shift, 0.1)
+    return frame
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+
+    parser = argparse.ArgumentParser(description='Extract motion vectors from video.')
+    parser.add_argument('video_url', type=str, nargs='?', help='file path or url of the video stream')
+    parser.add_argument('-p', '--preview', action='store_true', help='show a preview video with overlaid motion vectors')
+    parser.add_argument('-v', '--verbose', action='store_true', help='show detailled text output')
+    parser.add_argument('-s', '--skip-decoding-frames', action='store_true', help='skip decoding RGB frames and return only motion vectors (faster)')
+    parser.add_argument('-d', '--dump', nargs='?', const=True,
+        help='dump frames, motion vectors and frame types to optionally specified output directory')
+    args = parser.parse_args()
+
+    if args.dump:
+        if isinstance(args.dump, str):
+            dumpdir = args.dump
+        else:
+            dumpdir = f"out-{datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
+        for child in ["frames", "motion_vectors"]:
+            os.makedirs(os.path.join(dumpdir, child), exist_ok=True)
+
+    cap = VideoCap()
+
+    # open the video file
+    ret = cap.open(args.video_url)
+
+    if not ret:
+        raise RuntimeError(f"Could not open {args.video_url}")
+    
+    if args.verbose:
+        print("Sucessfully opened video file")
+
+    if args.skip_decoding_frames:
+        cap.set_decode_frames(False)
+
+    step = 0
+    times = []
+
+    # continuously read and display video frames and motion vectors
+    while True:
+        if args.verbose:
+            print("Frame: ", step, end=" ")
+
+        tstart = time.perf_counter()
+
+        # read next video frame and corresponding motion vectors
+        ret, frame, motion_vectors, frame_type = cap.read()
+
+        tend = time.perf_counter()
+        telapsed = tend - tstart
+        times.append(telapsed)
+
+        # if there is an error reading the frame
+        if not ret:
+            if args.verbose:
+                print("No frame read. Stopping.")
+            break
+
+        # print results
+        if args.verbose:
+            print("frame type: {} | ".format(frame_type), end=" ")
+            if frame is not None:
+                print("frame size: {} | ".format(np.shape(frame)), end=" ")
+            else:
+                print("frame size: () | ", end=" ")
+            print("motion vectors: {} | ".format(np.shape(motion_vectors)), end=" ")
+            print("elapsed time: {} s".format(telapsed))
+
+        # draw vectors on frames
+        if not args.skip_decoding_frames and frame is not None:
+            frame = draw_motion_vectors(frame, motion_vectors)
+
+        # store motion vectors, frames, and fraem types in output directory
+        if args.dump:
+            np.save(os.path.join(dumpdir, "motion_vectors", f"mvs-{step}.npy"), motion_vectors)
+            with open(os.path.join(dumpdir, "frame_types.txt"), "a") as f:
+                f.write(frame_type+"\n")
+            if not args.skip_decoding_frames and frame is not None:
+                cv2.imwrite(os.path.join(dumpdir, "frames", f"frame-{step}.jpg"), frame)
+
+        step += 1
+
+        if args.preview and not args.skip_decoding_frames:
+            cv2.imshow("Frame", frame)
+
+            # if user presses "q" key stop program
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+    
+    if args.verbose:
+        print("average dt: ", np.mean(times))
+
+    cap.release()
+
+    # close the GUI window
+    if args.preview:
+        cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    sys.exit(main())

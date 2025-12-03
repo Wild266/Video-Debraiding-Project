@@ -1,0 +1,59 @@
+﻿  blk_prediction.c
+  img_io.c
+  img_process.c
+  input.c
+  io_raw.c
+  io_tiff.c
+  memalloc.c
+  mv_prediction.c
+  parsetcommon.c
+  transform.c
+  win32.c
+  annexb.c
+  biaridecod.c
+  block.c
+  cabac.c
+  context_ini.c
+  erc_api.c
+  erc_do_i.c
+  erc_do_p.c
+  errorconcealment.c
+  Generating Code...
+  Compiling...
+  filehandle.c
+  fmo.c
+  header.c
+  image.c
+  intra16x16_pred.c
+  intra4x4_pred.c
+  intra8x8_pred.c
+  intra_chroma_pred.c
+  ldecod.c
+C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\ldecod\src\ldecod.c(845,32): warning C4098: 'init_conf': 'void' function returning a value
+  leaky_bucket.c
+  loopFilter.c
+  macroblock.c
+  mbuffer.c
+C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\ldecod\src\mbuffer.c(169,7): warning C4013: 'warning' undefined; assuming extern returning int
+  mb_access.c
+  mb_prediction.c
+  mc_prediction.c
+  nal.c
+  nalu.c
+  nalucommon.c
+  output.c
+  Generating Code...
+  Compiling...
+  parset.c
+C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\ldecod\src\parset.c(473,9): warning C4013: 'copySPS' undefined; assuming extern returning int
+  quant.c
+  rtp.c
+  sei.c
+  transform8x8.c
+  vlc.c
+  tracehelper.c
+C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\ldecod\xmltracefile\src\tracehelper.c(274,95): warning C4244: 'function': conversion from 'int64' to 'int', possible loss of data
+  xmltracefile.c
+  Generating Code...
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(1402,5): warning MSB8012: TargetPath(C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\ldecod\Release_vc8\ldecod.exe) does not match the Linker's OutputFile property value (C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\bin\ldecod.exe). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+  ldecod_vc9.vcxproj -> C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\ldecod\Release_vc8\ldecod.exe

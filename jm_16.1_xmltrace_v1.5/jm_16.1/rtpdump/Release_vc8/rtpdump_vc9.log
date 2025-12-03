@@ -1,0 +1,5 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(1133,5): warning MSB4211: The property "GetTargetPathDependsOn" is being set to a value for the first time, but it was already consumed at "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\Microsoft.Common.CurrentVersion.targets (2243,5)".
+  StdAfx.cpp
+  rtpdump.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(1402,5): warning MSB8012: TargetPath(C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\rtpdump\Release_vc8\rtpdump.exe) does not match the Linker's OutputFile property value (C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\bin\rtpdump.exe). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+  rtpdump_vc9.vcxproj -> C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\rtpdump\Release_vc8\rtpdump.exe

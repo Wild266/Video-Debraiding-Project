@@ -1,0 +1,14 @@
+/build/
+/dist/
+/wheelhouse/
+*.egg-info
+*.egg
+.eggs
+__pycache__/
+/venv3.*/
+env/
+out-*/
+
+*.tar
+a.out
+*.so

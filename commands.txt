@@ -1,0 +1,49 @@
+1. Convert mp4 to pure h.264 bitstream:
+ffmpeg -hide_banner -y -i input.mp4 -c:v copy -bsf:v h264_mp4toannexb -f h264 input.264
+
+
+2. Motion vectors:
+ffmpeg -flags2 +export_mvs -i input.mp4 -vf codecview=mv=pf+bf+bb -f null -
+
+ffprobe -hide_banner -v error  -export_side_data +mvs  -select_streams v:0  -show_frames  -show_entries frame=pkt_pts_time,pict_type,side_data_list  -of json input.mp4 > mv_frames.json
+
+Motion vector extraction using python library:
+docker run --rm -it `
+  -v "${PWD}:/home/video_cap" `
+  lubo1994/mv-extractor `
+  python3.12 extract_mvs.py vid_h264.mp4 --verbose
+Overlay:
+ffplay -flags2 +export_mvs -vf "codecview=mv=pf+bf+bb" input.mp4
+
+3. QP
+cd ffmpeg-debug-qp
+.\ffmpeg_debug_qp.exe ../input.mp4 2> qp_debug.log
+
+4. NAL
+"C:\Users\sameu\Downloads\Proj\h264bitstream\build\Release\h264_analyze.exe" input.264 > nal_headers.txt
+
+5. JM
+C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\bin\ldecod.exe -s `
+  -i input.264 `
+  -o decoded.yuv `
+  -xmltrace trace.xml
+
+ffmpeg -f rawvideo -pixel_format yuv420p -video_size 1920x1080 `
+       -i decoded.yuv `
+       -c:v libx264 decoded.mp4
+
+Tolerant version:
+ffmpeg -i input.mp4 `
+  -c:v libx264 -preset veryslow -crf 18 `
+  -profile:v high -level:v 4.0 `
+  -x264-params ref=4:dpb_size=4:b-pyramid=0 `
+  -an -f h264 jm_clean.264
+
+C:\Users\sameu\Downloads\Proj\jm_16.1_xmltrace_v1.5\jm_16.1\bin\ldecod.exe  -s `
+  -i jm_clean.264 `
+  -o decoded.yuv `
+  -xmltrace trace.xml
+
+ffmpeg -f rawvideo -pixel_format yuv420p -video_size 1920x1080 `
+       -i decoded.yuv `
+       -c:v libx264 decoded.mp4
