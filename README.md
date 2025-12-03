@@ -1,5 +1,5 @@
 # Akshan Sameullah
-
+Contact me at asameull@unc.edu
 ## Debraiding Video into Motion Vectors and Code Features
 
 In my COMP590: Video Compression class taught by Professor Ketan Mayer Patel, we dive into the concept of Video Compression, a technique that enables large videos to be represented in a variety of ways that take advantage of common video patterns such as spatial coherence (the idea that pixels in videos tend to be similar to surrounding pixels) and temporal coherence (video pixels tend to be similar to other pixels in those areas in adjacent time steps) to reduce the load of transmitting video files across the internet for tasks such as streaming. One such standard for representing videos is known as H.264. The goal of this project is to design and implement a small research-and-engineering project that “debraids” (decomposes) video into motion vectors and related codec features using existing tools. This will allow for comparison of codec motion vectors, extraction of features from frames, and exploring how encoder settings affect different codec features. This is also incredibly beneficial for my understanding of how videos are compressed in the H.264 format. The learning objectives were to gain an understanding of motion estimation in codecs and what debraiding video really entails and how motion vectors, QP, and residuals interact. Ultimately, I learned useful engineering skills for video and how motion/spatial complexity can inform streaming decisions by gaining hands-on experience with a novel and interesting project.
@@ -28,6 +28,8 @@ ffmpeg -hide_banner -y -i input.mp4 -c:v copy -bsf:v h264_mp4toannexb -f h264 in
 ```
 
 The above command converts our existing video, input.mp4, into a raw h264 bit stream file. This is helpful for the ingestion of the video into the subsequent tools (specifically h264_analyze and JM, which require the Annex B format) that we use to debraid it into specific codecs. The MP4 file contains data that we don’t actually need to look at either such as audio. This takes out specifically the video and puts it into the Annex B format using h264_mp4toannexb. The flag -c:v copy ensures that we don’t recompress the video and save the raw guts of it.
+
+![Figure 1. The first 5 lines of input.264](https://lh7-rt.googleusercontent.com/docsz/AD_4nXdU1kWS0uNWsiwBn3_YmA41JgbcmWKUyBxypfWLX70DsUDKCt_QFr8WlVOCdAiCYsWfoGHcROHNVWnP0u2uiVNBL0uXeBcjZFvnWj6CBqhKP3mtoOvK8t9q6Hd1jaFJtAw3AtCaUoUdrAkfyrajDBwzuWY2SFU?key=rvQmnlE8uCKaFHdD6Y4Jfg)
 
 *Figure 1. The first 5 lines of input.264*
 
@@ -66,11 +68,21 @@ nmake mpegflow.exe FFMPEG_DIR=C:\vcpkg\installed\x64-windows
 
 To extract the motion vectors, an extraction implementation exists with ffmpeg, as shown in Command 2 C1 where we use the flag -export_side_data +mvs to extract the motion vectors as we go through the video, and the flag -vf codecview=mv=pf+bf+bb in C2 highlights explicitly the parts of the motion vectors we are extracting. Motion vectors are essentially the vector from a sixteen by sixteen pixel macroblock to the most similar sixteen by sixteen macroblock in a different frame. Pf represents the forward motion vector to the next p-frame, bf is forward to the next B-frame, and bb is to the previous B-frame. We can overlay this over our video by replacing ffmpeg with ffplay C1→ C2 to see the motion vectors on the video as shown in Figure 2. I noticed they were small when displaying them and so I downloaded a smaller resolution version of the same input.mp4 and ran C2 again to get Figure 3 with bigger motion vector arrows. This makes sense because the macroblock size was held constant (although h264 can accommodate other block sizes as well), and so there are fewer motion vectors and fewer/bigger arrows. Not pictured due to my hardware constraints (laptop runs out of RAM when running this docker container), but I also used other tools such as mv-extractor to reproduce these values (C3). C1 the ffprobe commands gave me fairly high level data about the motion vectors (shown in Figure 4) So I used C4 to run another tool called Mpegflow and extract the raw motion vector values (Figure 5) which give me forward mv.dst_x, mv.dst_y, mvdx, mvdy explicitly.
 
+![Figure 2. Motion vectors overlaid over a video of birds flying next to a sunset](https://lh7-rt.googleusercontent.com/docsz/AD_4nXciaETZAwWd_ZBHBnTM_tSiSRR-DjH2HOrbN7aQ0NWfHfpNgitf9qKzQATrEjB6BUUhzzfiZGZ9iZxrCbvXBJk1zddlQ8slgYpdcj9cefeGMhbc-_1JaiTS-vW32NeQwY0SNtyxExTPBhigyJR8QyRq4B97QKM?key=rvQmnlE8uCKaFHdD6Y4Jfg)
+
 *Figure 2. Motion vectors overlaid over a video of birds flying next to a sunset*
+
+![Figure 3. Motion vectors overlaid over a smaller resolution video version. Note that the motion vector arrows appear bigger and more spaced out.](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcpxoEPBbKGgx4QacP0eGXopjyLOiy-ROBCqwnZNXPIm9TI8D8J7YXTCjGhS39KB7_2rY_mlI3VVCM99ZpheoIq2Ljse9DE_xZOYdJBO9_x1bzO3Z-6N4fj7EQqa_5K7U2hO5sbdBgT44vQ8v8Ezl6u7IQQUw?key=rvQmnlE8uCKaFHdD6Y4Jfg)
 
 *Figure 3. Motion vectors overlaid over a smaller resolution video version. Note that the motion vector arrows appear bigger and more spaced out.*
 
+![Figure 4. Metadata obtained about motion vectors using C1](https://lh7-rt.googleusercontent.com/docsz/AD_4nXebx_0BMV7EiSStWLjYpr6NehdXRr7ImtvfPiFfuXWE7qrtTlpUwU8Sy4FdDmeTBHS_EzuauhwTufUl3WSa7stbcnpAVaOynCLLijn0GdS15_wMN9ZNTd8th1KBavg92BYaqis_jzYWk-nydPbrHRv26Imc7cI?key=rvQmnlE8uCKaFHdD6Y4Jfg)
+
+![Figure 4. Metadata obtained about motion vectors using C1](https://lh7-rt.googleusercontent.com/docsz/AD_4nXdUd9unVU9QtF9Ew2bapDMB9adu7S3Z5V57MCbsjRRRwfJpUznVF1PHFq4IMcOPhhEpiCflbvxkqdiL8TiMZk5f_vGXCKYZhId50UagoL5XG49QvKbX47xjC8ls__tcN59BIt_OqL7arXZSjCFYHuiQ82w7LyM?key=rvQmnlE8uCKaFHdD6Y4Jfg)
+
 *Figure 4. Metadata obtained about motion vectors using C1*
+
+![Figure 5. Raw Motion Vector values obtained using mpegflow (C4). Values shown are specifically for mv.dst_x, mv.dst_y, mvdx, mvdy for the specified frame.](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcY-TQNuY8AsM-8O5BjJkbetRrHpfh7BJVb3WuA8D8AGuucE8uju5VW9TRh8nLj0na80KzEw35bLZ273n3nkXo7I5jXqsUApUyuQQuEHlq8gdEN8LbEpc70TOHkbjEwnYCNLwE5rLWDWHAX6SEpE6tMtnuycFM?key=rvQmnlE8uCKaFHdD6Y4Jfg)
 
 *Figure 5. Raw Motion Vector values obtained using mpegflow (C4). Values shown are specifically for mv.dst_x, mv.dst_y, mvdx, mvdy for the specified frame.*
 
@@ -85,6 +97,8 @@ To extract the motion vectors, an extraction implementation exists with ffmpeg, 
 When we run compression, we throw away some of the video’s detail and we control how much this quality reduction is using the quantization parameter. Essentially, the bigger this parameter is the more detail we lose in a macroblock.  
 When we run this command, we get the list of quantization parameters written to qp_degub.log as shown in Figure 6. This gives us the two digit quantization parameters for each frame (the tool did not separate them with whitespace, I am continuing to investigate why). Each row of this file gives us the quantization parameters for a row of macroblocks in the frame. In areas of lower quantization parameters, we are spending more bits to get higher quality values while in areas of higher quantization parameter values we spend less and get more compressed macroblocks.
 
+![Figure 6. QP values obtained using Command 3.](https://lh7-rt.googleusercontent.com/docsz/AD_4nXfvcVmzfJGEsM2sqnHIjhZpVTL4nS8UjW3nJGD8bfkr47g4yGyTCDtOkzXTyD85L1Pb0kISsYiZmXLmCaHefCDe0BdfrG6FPFaFsYhh3vW4QaInYgyjJBOjfynuoXWAaPiIEs81wVgzV4B8obMBrAI2cuUmHuY?key=rvQmnlE8uCKaFHdD6Y4Jfg)
+
 *Figure 6. QP values obtained using Command 3.*
 
 ---
@@ -96,6 +110,8 @@ h264_analyze.exe input.264 > nal_headers.txt
 ```
 
 I found a tool that allows us to get data on each NAL header and their payload in a much more easy to digest format using our raw bitstream. Using Commands 4, we can parse the raw .264 bitstream using a tool called h264_analyze to search for and identify NAL headers and their associated types and parameters. Each section marked “!!” notes a new NAL header of type nal_unit_type. For example, in Figure 7 we see an NAL of type 7 which is the SPS NAL unit and the parameters give us constants useful for identifying the color, resolution, etc.
+
+![Figure 7. NAL headers found using h264_analyze](https://lh7-rt.googleusercontent.com/docsz/AD_4nXfL6T2mR-QWBw9hiDJq8ddVXzsXlYyETPUE7lqka_bb59P7kjSQ3Rjo5nXbXGeCM1cATeQK8_lJXFjqdMlEgtkfianAStTR2fwgHej2VPLOXLC5DBHg6GHaQLpz3kkb25jbax7bzE7D7dwQx6YR17BH6FK7DGY?key=rvQmnlE8uCKaFHdD6Y4Jfg)
 
 *Figure 7. NAL headers found using h264_analyze*
 
@@ -120,5 +136,7 @@ ffmpeg -f rawvideo -pixel_format yuv420p -video_size 1920x1080 -i decoded.yuv -c
 ```
 
 I discovered after extracting the components we found thus far that there is a tool known as JM which is the industry-trusted tool for h.264. Using the decoder executable I compiled after removing certain warning and error catches, we can get a decoded YUV file which is the video in YUV420 pixels. The command also gives us an XML file with relevant information to the decoded values displayed in a relatively pretty way. Figure 8 shows this for a macroblock labeled and displaying the Quantization Parameters for a macroblock. We can use ffmpeg to re-encode the decoded YUV file and reconstruct the original input video we started with. Note, JM is a little sensitive and could not completely decode the full video (which was randomly found on the open source web). This may be due to the warnings I removed in the source code to run JM in the first place. For the repository’s specific video file I also included some tolerant commands to demonstrate the video is decodable and recoverable for testing purposes.
+
+![Figure 8. A macroblock’s quantization parameters discovered using JM in the trace XML file](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcZSchs-CMaME5ZBlvBfjWzW_MCO4C8Vy6tewTqeitGJiJcfbZqed9tOXOvzUZRgvcWVnSyPcXNg5paDqPPwXdqpy5VLdnjbRH-fnaHQeugrTDUTtmR_wdK8_3w6ZNVydswpydWNqXxNlnadyjeeSeGpn04L1Y?key=rvQmnlE8uCKaFHdD6Y4Jfg)
 
 *Figure 8. A macroblock’s quantization parameters discovered using JM in the trace XML file*
